@@ -21,4 +21,12 @@ describe Knurld do
     expect(headers).to include("Authorization")
     expect(headers).to include("Developer-Id")
   end
+
+  it 'returns a list of all app models' do
+    expect(Knurld.retrieve_app_models).to be_a(Array)
+  end
+
+  it 'returns a specific app model' do
+    expect(Knurld.retrieve_app_model("ed101c867904071e9e2f98d91f2b30af")).to be_instance_of(Knurld::AppModel)
+  end
 end

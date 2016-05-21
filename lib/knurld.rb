@@ -102,5 +102,17 @@ module Knurld
     end
   end
 
+  #Retrieve all app models for the authenticated user.
+  #@return [Array] All app Models
+  def self.retrieve_app_models
+    self.execute_request(:get, "app-models")["items"]
+  end
 
+  #Retrieve a specific app model.
+  #@param id [String] the id of the desired app model
+  #
+  #@return [AppModel] The specific app model
+  def self.retrieve_app_model(id)
+    Knurld::AppModel.new(self.execute_request(:get, "app-models/"+id))
+  end
 end
