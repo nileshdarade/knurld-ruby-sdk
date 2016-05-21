@@ -1,10 +1,10 @@
-require "knurld/version"
-require "knurld/utils"
-require "knurld/analysis"
-require "knurld/appmodel"
-require "knurld/consumer"
-require "knurld/enrollment"
-require "knurld/verification"
+require_relative "knurld/version"
+require_relative "knurld/utils"
+require_relative "knurld/analysis"
+require_relative "knurld/appmodel"
+require_relative "knurld/consumer"
+require_relative "knurld/enrollment"
+require_relative "knurld/verification"
 
 require "json"
 require "rest-client"
@@ -15,15 +15,23 @@ module Knurld
   @client_id
   @client_secret
   @access_token
+  #The approved list of vocabulary allowed by the Knurld Voice API
+  @VOCABULARY = %w(Atlanta Athens England Olive Octagon Baltimore
+                  London Brazil Amber Diamond Boston Paris Mexico
+                  Orange Arrow Chicago Toronto Japan Yellow Triangle
+                  Cleveland Berlin Germany Purple Circle Dallas Madrid
+                  Turkey Maroon Pyramid Denver Canada Ivory Oval
+                  Memphis Sweden Crimson Cylinder Nashville Orlando
+                  Phoenix Seattle)
 
   class << self
-    attr_accessor :developer_id, :client_id, :client_secret
+    attr_accessor :developer_id, :client_id, :client_secret, :api_base_url
   end
 
-  #retrieves the status of the Knurld API
+  #Retrieves the status of the Knurld API
   def self.api_status
-    response = self.execute_request(:get, "v1/status")
-    if response.nil? do
+    response = execute_request(:get, "v1/status", nil, nil)
+    if response.nil?
       false
     else
       true
@@ -36,75 +44,67 @@ module Knurld
   #@param endpoint [Symbol] the target URL endpoint, to be concatenated with api_base_url
   #@param data [Hash, String, Int] the payload to be placed in the request. By default, will be parsed with JSON
   #
-  #@return the body of the response, or the appropriate error
+  #@return the body of the response upon success, otherwise nil
 
-  def self.execute_request(method, endpoint, data)
-    url = self.api_base_url + endpoint
+  def self.execute_request(method, endpoint, data=nil, headers=nil)
+    #construct our url
+    url = @api_base_url + endpoint
 
-    #ensure
-    begin
-      data = data.to_json
-    rescue
-      $stderr.puts "Could not parse #{data}." + $!
-      raise
+    #unless headers specify a content-type, serialize our data into json
+    if headers == nil || !headers.include?("Content-Type")
+      begin
+        unless data == nil
+          data = data.to_json
+        end
+      rescue => e
+        $stderr.puts "Could not parse #{data}." + e.message
+        raise
+      end
     end
 
-    response = RestClient::Request(method: :method, url: :url, headers: {params: data, self.headers})
-
-
-    unless [:put, :delete, :post, :get, :update].include? method.downcase do
+    #ensure method is allowed
+    unless [:put, :delete, :post, :get, :update].include? method.downcase
       $stderr.puts "Error. Method not allowed. Attempted: #{method}"
       raise
     end
 
 
-    case response.code
-      when 200, 201
-        #success
-        body
-      when 400
-        #bad request
-        $stderr.puts "Error, Bad Request. \n The Request: #{response.request}. \n The Response: #{body}"
-        nil
-      when 401
-        #auth error
-        $stderr.puts "401 Unauthorized. \n The Request: #{response.request}. \n The Response: #{body}"
-        nil
-      when 403
-        #forbidden
-        $stderr.puts "403 Forbidden. \n The Request: #{response.request}. \n The Response: #{body}"
-        nil
-      when 404
-        #not found
-        $stderr.puts "404 Not Found. \n The Request: #{response.request}. \n The Response: #{body}"
-        nil
-      when 500
-        #internal server error
-        $stderr.puts "500 Internal Server Error. \n The Request: #{response.request}. \n The Response: #{body}"
-        nil
-      when 503
-        #service unavailable
-        $stderr.puts "503 Service unavailable. \n The Request: #{response.request}. \n The Response: #{body}"
-        nil
+    #perform the request
+    begin
+      if headers == nil
+        headers = make_headers
+      end
+      #RestClient has a strict no payload parameter rule for get requests.
+      response = RestClient::Request.execute(method: method, url: url, payload: data, headers: headers)
+    rescue RestClient::Exception => e
+      raise "Error emitting request. Error: #{e.message}. Response: #{e.response}."
     end
+
+    return JSON.parse(response.body)
   end
 
   #Requests a new OAuth token using the provided client id and secret and returns appropriate headers.
-  #@return [JSON] A JSON parsed authorization header as specified in the Knurld documentation.
-
-  def self.headers
-    if self.client_id.nil? || self.client_secret.nil? || self.developer_id.nil? do
-      $stderr.puts "You MUST set client_id, client_secret, and developer_id before using Knurld services!"
-      nil
+  #@return [Hash] An authorization header as specified in the Knurld documentation.
+  def self.make_headers
+    if Knurld.client_id.nil?
+      raise "You MUST set your client_id!"
+    elsif Knurld.client_secret.nil?
+      raise "You MUST set your client_secret!"
+    elsif Knurld.developer_id.nil?
+      raise "You MUST set your developer_id!"
     end
 
     response = self.execute_request(:post,
                     "oauth/client_credential/accesstoken?grant_type=client_credentials",
-                    {:client_id => self.client_id, :client_secret => self.client_secret})
+                    {:client_id => @client_id, :client_secret => @client_secret}, {"Content-Type" => "application/x-www-form-urlencoded"})
 
-    unless response.nil? do
-      self.access_token = response.access_token
-      {"Authorization: Bearer"=>self.access_token, "Developer-Id: Bearer:"=>self.developer_id, "Content-Type"=>:json}.to_json
+    unless response.nil?
+      @access_token = response["access_token"]
+      return {:Authorization => "Bearer "+@access_token,
+        :'Developer-Id' => "Bearer: "+@developer_id,
+        :Content_Type => "application/json"}
     end
   end
+
+
 end

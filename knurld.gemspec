@@ -7,11 +7,11 @@ Gem::Specification.new do |spec|
   spec.name          = "knurld"
   spec.version       = Knurld::VERSION
   spec.authors       = ["ianseyer"]
-  spec.email         = ["ian.seyer@gmail.com"]
+  spec.email         = ["iseyer@knurld.io"]
 
-  spec.summary       = %q{TODO: Write a short summary, because Rubygems requires one.}
-  spec.description   = %q{TODO: Write a longer description or delete this line.}
-  spec.homepage      = "TODO: Put your gem's website or public repo URL here."
+  spec.summary       = %q{A Ruby SDK for Knurld's Voice Services (v1)}
+  spec.description   = %q{Gives developers control over enrollments, verifications, consumers, analysis, and appmodels.}
+  spec.homepage      = "https://github.com/ianseyer/knurld-ruby-sdk"
   spec.license       = "MIT"
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'

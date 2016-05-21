@@ -1,2 +1,4 @@
 --format documentation
 --color
+--default-path spec/
+--pattern *_spec.rb
