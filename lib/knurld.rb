@@ -11,18 +11,10 @@ require "rest-client"
 
 module Knurld
   @developer_id
-  @api_base_url = "https://api.knurld.io/"
+  @api_base_url = "https://api.knurld.io/v1/"
   @client_id
   @client_secret
   @access_token
-  #The approved list of vocabulary allowed by the Knurld Voice API
-  @VOCABULARY = %w(Atlanta Athens England Olive Octagon Baltimore
-                  London Brazil Amber Diamond Boston Paris Mexico
-                  Orange Arrow Chicago Toronto Japan Yellow Triangle
-                  Cleveland Berlin Germany Purple Circle Dallas Madrid
-                  Turkey Maroon Pyramid Denver Canada Ivory Oval
-                  Memphis Sweden Crimson Cylinder Nashville Orlando
-                  Phoenix Seattle)
 
   class << self
     attr_accessor :developer_id, :client_id, :client_secret, :api_base_url
@@ -30,7 +22,7 @@ module Knurld
 
   #Retrieves the status of the Knurld API
   def self.api_status
-    response = execute_request(:get, "v1/status", nil, nil)
+    response = execute_request(:get, "status", nil, nil)
     if response.nil?
       false
     else
@@ -42,23 +34,26 @@ module Knurld
   #
   #@param method [Symbol] the HTTP method to be used. Accepts put, post, get, update, delete
   #@param endpoint [Symbol] the target URL endpoint, to be concatenated with api_base_url
-  #@param data [Hash, String, Int] the payload to be placed in the request. By default, will be parsed with JSON
+  #@param data [Hash, String, Int] the payload to be placed in the request. Assumed to already be json.
   #
   #@return the body of the response upon success, otherwise nil
 
   def self.execute_request(method, endpoint, data=nil, headers=nil)
     #construct our url
-    url = @api_base_url + endpoint
+    #we have to drop "v1/" from the API url if we're authenticating
+    unless endpoint.include? "oauth"
+      url = @api_base_url + endpoint
+    else
+      url = @api_base_url.slice(0, @api_base_url.length - 3) + endpoint
+    end
 
-    #unless headers specify a content-type, serialize our data into json
     if headers == nil || !headers.include?("Content-Type")
       begin
         unless data == nil
           data = data.to_json
         end
       rescue => e
-        $stderr.puts "Could not parse #{data}." + e.message
-        raise
+        raise "Could not parse data! Attempted: #{data}"
       end
     end
 
@@ -100,6 +95,7 @@ module Knurld
 
     unless response.nil?
       @access_token = response["access_token"]
+
       return {:Authorization => "Bearer "+@access_token,
         :'Developer-Id' => "Bearer: "+@developer_id,
         :Content_Type => "application/json"}

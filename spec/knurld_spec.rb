@@ -7,9 +7,9 @@ describe Knurld do
     Knurld.client_secret = "yCrZxlnTY7VvbQMb"
   end
 
-  it 'raises exception if missing developer_id, client_d, or client_secret', skip_before: true do
+  it 'raises exception if missing developer_id, client_d, or client_secret' do
     Knurld.developer_id, Knurld.client_id, Knurld.client_secret = nil
-    expect {Knurld.make_headers}.to raise_error
+    expect {Knurld.make_headers}.to raise_error(RuntimeError)
   end
 
   it 'retrieves status of knurld API' do
