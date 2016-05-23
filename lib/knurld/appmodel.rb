@@ -11,8 +11,12 @@
 module Knurld
   class AppModel
     attr_accessor :enrollmentRepeats, :vocabulary, :verificationLength,
-                  :threshold, :autoThresholdEnable, :autoThresholdMaxRise,
-                  :autoThresholdClearance, :useModelUpdate, :modelUpdateDailyLimit
+                  :threshold
+
+    attr_reader :autoThresholdEnable, :autoThresholdMaxRise,
+    :autoThresholdClearance, :useModelUpdate, :modelUpdateDailyLimit,
+    :href, :id
+
     ##
     # Creates an appmodel instance.
     # @param enrollmentRepeats [Int] # of times the user is asked to repeat each phrase during the enrollment process. Minimum & default is 3.
@@ -77,9 +81,70 @@ module Knurld
           Please refer to documentation and ensure typing."
         end
 
-        #send our request off to Knurld
-        @href = Knurld::execute_request(:post, "app-models", self.to_json)["href"]
+        #ensure we dont create duplicates;
+        #if you are creating an AppModel instance from a preexisting appmodel ID,
+        #don't bother sending the request.
+        if params.has_key? "href"
+          #it already exists in Knurld
+          @href = params.fetch("href")
+        else
+          #send our request off to Knurld
+          @href = Knurld::execute_request(:post, "app-models", self.to_json)["href"]
+        end
         @id = @href.split('/app-models/')[1] #grab the part of the href after /app-models/
+    end
+
+    ##
+    # A simple to_json method
+    def self.to_json
+      return {
+        :enrollmentRepeats => @enrollmentRepeats,
+        :vocabulary => @VOCABULARY,
+        :verificationLength => @verificationLength,
+        :threshold => @threshold,
+        :autoThresholdEnable => @autoThresholdEnable,
+        :autoThresholdClearance => @autoThresholdClearance,
+        :autoThresholdMaxRise => @autoThresholdMaxRise,
+        :useModelUpdate => @useModelUpdate,
+        :modelUpdateDailyLimit => @modelUpdateDailyLimit
+      }
+    end
+
+    ##
+    # Calls Knurld's Update method on an app-model.
+    #
+    # @returns the updated AppModel
+    def save
+      #retrieve the Knurld copy of the current appmodel, to compare to
+      remote_appmodel = Knurld.retrieve_app_model(self.id)
+      new_params = {}
+      case
+        when remote_appmodel.enrollmentRepeats != self.enrollmentRepeats
+          new_params["enrollmentRepeats"] = self.enrollmentRepeats
+        when remote_appmodel.verificationLength != self.verificationLength
+          new_params["verificationLength"] = self.verificationLength
+        when remote_appmodel.threshold != self.threshold
+          new_params["threshold"] = self.threshold
+      end
+
+      begin
+        Knurld::execute_request(:post, "app-models/"+self.id, new_params)
+        return self
+      rescue => e
+        raise e
+      end
+    end
+
+    ##
+    # Calls Knurld's Delete method on an app-model.
+    #
+    # @returns the deleted AppModel
+    def destroy
+      begin
+        Knurld::execute_request(:delete, "app-models/"+self.id)
+      rescue => e
+        raise e
+      end
     end
   end
 end

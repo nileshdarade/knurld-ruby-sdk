@@ -49,9 +49,7 @@ module Knurld
 
     if headers == nil || !headers.include?("Content-Type")
       begin
-        unless data == nil
-          data = data.to_json
-        end
+        data = data.to_json
       rescue => e
         raise "Could not parse data! Attempted: #{data}"
       end
@@ -75,7 +73,11 @@ module Knurld
       raise "Error emitting request. Error: #{e.message}. Response: #{e.response}."
     end
 
-    return JSON.parse(response.body)
+    begin
+      return JSON.parse(response.body)
+    rescue => e
+      return nil
+    end
   end
 
   #Requests a new OAuth token using the provided client id and secret and returns appropriate headers.
@@ -105,14 +107,53 @@ module Knurld
   #Retrieve all app models for the authenticated user.
   #@return [Array] All app Models
   def self.retrieve_app_models
-    self.execute_request(:get, "app-models")["items"]
+    results = []
+    self.execute_request(:get, "app-models")["items"].each do |model|
+      results << Knurld::AppModel.new(model)
+    end
+    results
   end
 
   #Retrieve a specific app model.
-  #@param id [String] the id of the desired app model
+  #@param id [String] the id or url of the desired app model
   #
   #@return [AppModel] The specific app model
   def self.retrieve_app_model(id)
+    if id.contains? "api.knurld.io" # it is a URL, not just an id
+      id = id.split("/app-models/")[1]
+    end
     Knurld::AppModel.new(self.execute_request(:get, "app-models/"+id))
   end
+
+  #Retrieve a specific consumer.
+  #@param id [String] the id or url of the desired consumer
+  #
+  #@return [Consumer] The specific consumer
+  def self.retrieve_consumer(id)
+    if id.contains? "api.knurld.io" # it is a URL, not just an id
+      id = id.split("/consumers/")[1]
+    end
+    Knurld::Consumer.new(self.execute_request(:get, "consumers/"+id))
+  end
+
+  #Retrieve all consumers for a developer.
+  #@return [Array of Consumers]
+  def self.retrieve_consumers
+    results = []
+    self.execute_request(:get, "consumers")["items"].each do |consumer|
+      results << Knurld::Consumer.new(consumer)
+    end
+  end
+
+  ##
+  #Retrieves all enrollments for all appmodels.
+  #
+  # @return Array of enrollments
+  def self.retrieve_enrollments
+    results = []
+    self.execute_request(:get, "enrollments")["items"].each do |enrollment|
+      consumer = self.retrieve_consumer(enrollment["consumer"]["href"])
+      appmodel = self.retrieve_app_model(enrollment["application"]["href"])
+      results << Knurld::Enrollment.new({:consumer => consumer, :appmodel => appmodel})
+    end
 end

@@ -23,10 +23,23 @@ describe Knurld do
   end
 
   it 'returns a list of all app models' do
-    expect(Knurld.retrieve_app_models).to be_a(Array)
+    appmodels = Knurld.retrieve_app_models
+    expect(appmodels).to be_a(Array)
+    expect(appmodels[0]).to be_instance_of(Knurld::AppModel)
   end
 
   it 'returns a specific app model' do
-    expect(Knurld.retrieve_app_model("ed101c867904071e9e2f98d91f2b30af")).to be_instance_of(Knurld::AppModel)
+    expect(Knurld.retrieve_app_model("5571c3a5c203f17826740e9019b30215")).to be_instance_of(Knurld::AppModel)
   end
+
+  it 'retrieves a single consumer' do
+    expect(Knurld.retrieve_consumer("ed101c867904071e9e2f98d91f0385dc")).to be_instance_of(Knurld::Consumer)
+  end
+
+  it 'retrieves all consumers' do
+    consumers = Knurld.retrieve_consumers
+    expect(consumers).to be_a(Array)
+    expect(consumers[0]).to be_instance_of(Knurld::Consumer)
+  end
+
 end
