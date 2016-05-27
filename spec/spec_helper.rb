@@ -2,3 +2,6 @@ require 'simplecov'
 SimpleCov.start
 $LOAD_PATH.unshift File.expand_path('../../lib', __FILE__)
 require 'knurld'
+Knurld.developer_id = "eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE1MDQ4MTY5MDUsInJvbGUiOiJhZG1pbiIsImlkIjoiYTY3YTNmMzM3ODIzZTJkNTZlYzI2NGY4YzMxNWM3NmUiLCJ0ZW5hbnQiOiJ0ZW5hbnRfbXJwdGF4M29tenl4b25kbW9yMmcyNXJ1bzV2dGk0M2JudTJ4bzUzZGdqd2cyenQyb2ozdG1tM2oiLCJuYW1lIjoiYWRtaW4ifQ.ZBrqbMNHRXScvzBz6IGSW3H05yLZruZ1CSI-lremAMsT5dOYUBzyU9WnkYnK7JgZbwyCDxPESh_bpQe5LSKsQg"
+Knurld.client_id = "f5fAgcpfYhdA2f2Tku0QEcganb4WJMjA"
+Knurld.client_secret = "yCrZxlnTY7VvbQMb"

@@ -113,7 +113,7 @@ module Knurld
     ##
     # Calls Knurld's Update method on an app-model.
     #
-    # @returns the updated AppModel
+    # @return the updated AppModel
     def save
       #retrieve the Knurld copy of the current appmodel, to compare to
       remote_appmodel = Knurld.retrieve_app_model(self.id)
@@ -138,10 +138,11 @@ module Knurld
     ##
     # Calls Knurld's Delete method on an app-model.
     #
-    # @returns the deleted AppModel
+    # @return the deleted AppModel
     def destroy
       begin
         Knurld::execute_request(:delete, "app-models/"+self.id)
+        return nil
       rescue => e
         raise e
       end

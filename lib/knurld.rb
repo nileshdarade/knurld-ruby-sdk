@@ -156,4 +156,18 @@ module Knurld
       appmodel = self.retrieve_app_model(enrollment["application"]["href"])
       results << Knurld::Enrollment.new({:consumer => consumer, :appmodel => appmodel})
     end
+  end
+
+  ##
+  #Retrieves all verifications for all appmodels.
+  #
+  # @return Array of verifications
+  def self.retrieve_verifications
+    results = []
+    self.execute_request(:get, "verifications")["items"].each do |verification|
+      consumer = self.retrieve_consumer(verification["consumer"]["href"])
+      appmodel = self.retrieve_app_model(verification["application"]["href"])
+      results << Knurld::Verification.new({:consumer => consumer, :appmodel => appmodel})
+    end
+  end
 end
