@@ -28,184 +28,40 @@ describe "KNURLD API" do
 
   it 'fails delwin' do
     sleep 5 #let the enrollment populate
-    @verificationAnalysis = Knurld::Analysis.new({:audioUrl => "https://dl.dropboxusercontent.com/s/xwnlsabj91w26b9/Audio%20Track-2.wav?dl=0", :num_words => 3})
-    @verificationIntervals = []
-    @verificationPhrase = ["Boston", "Ivory", "Sweden"]
+    # https://dl.dropboxusercontent.com/s/wff0r4tgsw4t00k/Audio%20Track-5.wav?dl=0
+    #             https://dl.dropboxusercontent.com/s/yy4iz9fiz0yo13a/Audio%20Track-6.wav?dl=0
 
-    @verificationAnalysis.results["intervals"].each_with_index do |interval, index|
-      interval['phrase'] = @verificationPhrase[index]
-      @verificationIntervals << interval
-    end
+    @delwin = %w(https://dl.dropboxusercontent.com/s/7fobl3uyrpy410o/Audio%20Track-9.wav?dl=0
+                https://dl.dropboxusercontent.com/s/1mnwyhdam8bagpx/Audio%20Track-10.wav?dl=0
+                https://dl.dropboxusercontent.com/s/u96phawugcr98td/Audio%20Track.wav?dl=0)
 
+    # @collin = %w(https://dl.dropboxusercontent.com/s/aeioxyj1z7bkcdh/Audio%20Track-2.wav?dl=0
+    #             https://dl.dropboxusercontent.com/s/glcpwfcn58zzw3t/Audio%20Track-3.wav?dl=0
+    #             https://dl.dropboxusercontent.com/s/fh2afct4qa17qcu/Audio%20Track-4.wav?dl=0
+    #             https://dl.dropboxusercontent.com/s/lmnb4kfplfls1gn/Audio%20Track-5.wav?dl=0
+    #             https://dl.dropboxusercontent.com/s/jmdvcm0sg57nqlx/Audio%20Track-6.wav?dl=0
+    #             https://dl.dropboxusercontent.com/s/nts6nt7w8mdm7ap/Audio%20Track-7.wav?dl=0
+    #             https://dl.dropboxusercontent.com/s/hfdrbx4l9hrlwfp/Audio%20Track-8.wav?dl=0
+    #             https://dl.dropboxusercontent.com/s/xkgbh7yd232vfb8/Audio%20Track-9.wav?dl=0
+    #             https://dl.dropboxusercontent.com/s/pdh93zomyx6rrn5/Audio%20Track.wav?dl=0)
 
-    @verification = Knurld::Verification.new({:appmodel => @appmodel, :consumer => @consumer})
-    while @verification.status["phrases"] != ["Boston", "Ivory", "Sweden"]
+    @delwin.each do |attempt|
+      puts attempt
       @verification = Knurld::Verification.new({:appmodel => @appmodel, :consumer => @consumer})
+      while @verification.status["phrases"] != ["Boston", "Ivory", "Sweden"]
+        @verification = Knurld::Verification.new({:appmodel => @appmodel, :consumer => @consumer})
+      end
+      @verificationAnalysis = Knurld::Analysis.new({:audioUrl => attempt, :num_words => 3})
+      @verificationIntervals = []
+      @verificationPhrase = ["Boston", "Ivory", "Sweden"]
+      puts @verificationAnalysis.results[""]
+      @verificationAnalysis.results["intervals"].each_with_index do |interval, index|
+        interval['phrase'] = @verificationPhrase[index]
+        @verificationIntervals << interval
+      end
+      @verification.verify(attempt, @verificationIntervals)
+      puts @verification.status
+      # expect(@verification.status).to eq(false)
     end
-
-    # puts @verificationIntervals
-    @verification.verify("https://dl.dropboxusercontent.com/s/tgm52upwbymzgfc/bostonivorysweden.wav?dl=0", @verificationIntervals)
-    puts @verification.status
-    expect(@verification.status).to eq(false)
   end
-
-  # it 'fails collin' do
-  #   @verificationAnalysis = Knurld::Analysis.new({:audioUrl => "https://dl.dropboxusercontent.com/s/jo1pu87fbk6qx9w/Audio%20Track-2.wav?dl=0", :num_words => 3})
-  #   @verificationIntervals = []
-  #   puts @verification.status
-  #   @verificationAnalysis.results.each_with_index do |interval, index|
-  #     interval['phrase'] = @phrase[index]
-  #     @verificationIntervals << interval
-  #   end
-  #
-  #   @payload = []
-  #   @verification.status["phrases"].each do |word|
-  #     @payload << @verificationIntervals.select {|key, val| key.value?(word)}[0]
-  #   end
-  #
-  #   puts @payload
-  #   @verification.verify("https://dl.dropboxusercontent.com/s/jo1pu87fbk6qx9w/Audio%20Track-2.wav?dl=0", @payload)
-  #   puts @verification.status
-  #   expect(@verification.status).to eq(false)
-  # end
-  #
-  # it 'fails collin' do
-  #   @verificationAnalysis = Knurld::Analysis.new({:audioUrl => "https://dl.dropboxusercontent.com/s/f2ct3eh8kr0hoa0/Audio%20Track-3.wav?dl=0", :num_words => 3})
-  #   @verificationIntervals = []
-  #   puts @verification.status
-  #   @verificationAnalysis.results.each_with_index do |interval, index|
-  #     interval['phrase'] = @phrase[index]
-  #     @verificationIntervals << interval
-  #   end
-  #
-  #   @payload = []
-  #   @verification.status["phrases"].each do |word|
-  #     @payload << @verificationIntervals.select {|key, val| key.value?(word)}[0]
-  #   end
-  #
-  #   puts @payload
-  #   @verification.verify("https://dl.dropboxusercontent.com/s/f2ct3eh8kr0hoa0/Audio%20Track-3.wav?dl=0", @payload)
-  #   puts @verification.status
-  #   expect(@verification.status).to eq(false)
-  # end
-  #
-  # it 'fails collin' do
-  #   @verificationAnalysis = Knurld::Analysis.new({:audioUrl => "https://dl.dropboxusercontent.com/s/uytzuf2tz6ok8uw/Audio%20Track-4.wav?dl=0", :num_words => 3})
-  #   @verificationIntervals = []
-  #   puts @verification.status
-  #   @verificationAnalysis.results.each_with_index do |interval, index|
-  #     interval['phrase'] = @phrase[index]
-  #     @verificationIntervals << interval
-  #   end
-  #
-  #   @payload = []
-  #   @verification.status["phrases"].each do |word|
-  #     @payload << @verificationIntervals.select {|key, val| key.value?(word)}[0]
-  #   end
-  #
-  #   puts @payload
-  #   @verification.verify("https://dl.dropboxusercontent.com/s/uytzuf2tz6ok8uw/Audio%20Track-4.wav?dl=0", @payload)
-  #   puts @verification.status
-  #   expect(@verification.status).to eq(false)
-  # end
-  #
-  # it 'fails collin' do
-  #   @verificationAnalysis = Knurld::Analysis.new({:audioUrl => "https://dl.dropboxusercontent.com/s/q80cobypj6k0xqt/Audio%20Track-5.wav?dl=0", :num_words => 3})
-  #   @verificationIntervals = []
-  #   puts @verification.status
-  #   @verificationAnalysis.results.each_with_index do |interval, index|
-  #     interval['phrase'] = @phrase[index]
-  #     @verificationIntervals << interval
-  #   end
-  #
-  #   @payload = []
-  #   @verification.status["phrases"].each do |word|
-  #     @payload << @verificationIntervals.select {|key, val| key.value?(word)}[0]
-  #   end
-  #
-  #   puts @payload
-  #   @verification.verify("https://dl.dropboxusercontent.com/s/q80cobypj6k0xqt/Audio%20Track-5.wav?dl=0", @payload)
-  #   puts @verification.status
-  #   expect(@verification.status).to eq(false)
-  # end
-  #
-  # it 'fails collin' do
-  #   @verificationAnalysis = Knurld::Analysis.new({:audioUrl => "https://dl.dropboxusercontent.com/s/12zgp9to7bnbtym/Audio%20Track-6.wav?dl=0", :num_words => 3})
-  #   @verificationIntervals = []
-  #   puts @verification.status
-  #   @verificationAnalysis.results.each_with_index do |interval, index|
-  #     interval['phrase'] = @phrase[index]
-  #     @verificationIntervals << interval
-  #   end
-  #
-  #   @payload = []
-  #   @verification.status["phrases"].each do |word|
-  #     @payload << @verificationIntervals.select {|key, val| key.value?(word)}[0]
-  #   end
-  #
-  #   puts @payload
-  #   @verification.verify("https://dl.dropboxusercontent.com/s/12zgp9to7bnbtym/Audio%20Track-6.wav?dl=0", @payload)
-  #   puts @verification.status
-  #   expect(@verification.status).to eq(false)
-  # end
-  #
-  # it 'fails collin' do
-  #   @verificationAnalysis = Knurld::Analysis.new({:audioUrl => "https://dl.dropboxusercontent.com/s/9sjcew8ficzk8u6/Audio%20Track-7.wav?dl=0", :num_words => 3})
-  #   @verificationIntervals = []
-  #   puts @verification.status
-  #   @verificationAnalysis.results.each_with_index do |interval, index|
-  #     interval['phrase'] = @phrase[index]
-  #     @verificationIntervals << interval
-  #   end
-  #
-  #   @payload = []
-  #   @verification.status["phrases"].each do |word|
-  #     @payload << @verificationIntervals.select {|key, val| key.value?(word)}[0]
-  #   end
-  #
-  #   puts @payload
-  #   @verification.verify("https://dl.dropboxusercontent.com/s/9sjcew8ficzk8u6/Audio%20Track-7.wav?dl=0", @payload)
-  #   puts @verification.status
-  #   expect(@verification.status).to eq(false)
-  # end
-  #
-  # it 'fails collin' do
-  #   @verificationAnalysis = Knurld::Analysis.new({:audioUrl => "https://dl.dropboxusercontent.com/s/xrk2t53hmnh0kun/Audio%20Track-8.wav?dl=0", :num_words => 3})
-  #   @verificationIntervals = []
-  #   puts @verification.status
-  #   @verificationAnalysis.results.each_with_index do |interval, index|
-  #     interval['phrase'] = @phrase[index]
-  #     @verificationIntervals << interval
-  #   end
-  #
-  #   @payload = []
-  #   @verification.status["phrases"].each do |word|
-  #     @payload << @verificationIntervals.select {|key, val| key.value?(word)}[0]
-  #   end
-  #
-  #   puts @payload
-  #   @verification.verify("https://dl.dropboxusercontent.com/s/xrk2t53hmnh0kun/Audio%20Track-8.wav?dl=0", @payload)
-  #   puts @verification.status
-  #   expect(@verification.status).to eq(false)
-  # end
-  #
-  # it 'fails collin' do
-  #   @verificationAnalysis = Knurld::Analysis.new({:audioUrl => "https://dl.dropboxusercontent.com/s/onxg1e6psqybz38/Audio%20Track-9.wav?dl=0", :num_words => 3})
-  #   @verificationIntervals = []
-  #   puts @verification.status
-  #   @verificationAnalysis.results.each_with_index do |interval, index|
-  #     interval['phrase'] = @phrase[index]
-  #     @verificationIntervals << interval
-  #   end
-  #
-  #   @payload = []
-  #   @verification.status["phrases"].each do |word|
-  #     @payload << @verificationIntervals.select {|key, val| key.value?(word)}[0]
-  #   end
-  #
-  #   puts @payload
-  #   @verification.verify("https://dl.dropboxusercontent.com/s/onxg1e6psqybz38/Audio%20Track-9.wav?dl=0", @payload)
-  #   puts @verification.status
-  #   expect(@verification.status).to eq(false)
-  # end
 end
