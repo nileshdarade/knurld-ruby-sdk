@@ -38,7 +38,7 @@ describe Knurld::Enrollment do
     end
   end
 
-  describe 'complete_or_status' do
+  describe 'status' do
 
   end
 

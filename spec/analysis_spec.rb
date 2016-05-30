@@ -13,7 +13,7 @@ describe Knurld::Analysis do
     end
 
     it 'sets taskname and taskstatus' do
-      analysis = Knurld::Analysis.new({:num_words => 9, :audioUrl => "https://www.dropbox.com/s/jghxwhd82a41gi6/3309643979.wav"})
+      analysis = Knurld::Analysis.new({:num_words => 9, :audioUrl => "https://dl.dropboxusercontent.com/s/lqrydu915bvag3k/6561423480.wav?dl=0"})
       expect(analysis.taskName).to_not be_nil
       expect(analysis.taskStatus).to_not be_nil
     end
@@ -21,7 +21,7 @@ describe Knurld::Analysis do
 
   describe 'results' do
     it 'returns a result, not nil' do
-      @analysis = Knurld::Analysis.new({:num_words => 9, :audioUrl => "https://www.dropbox.com/s/jghxwhd82a41gi6/3309643979.wav"})
+      @analysis = Knurld::Analysis.new({:num_words => 9, :audioUrl => "https://dl.dropboxusercontent.com/s/lqrydu915bvag3k/6561423480.wav?dl=0"})
       @results = @analysis.results
       puts @results
       expect(@results).to_not be_nil

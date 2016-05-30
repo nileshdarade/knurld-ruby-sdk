@@ -39,7 +39,6 @@ module Knurld
                         Turkey Maroon Pyramid Denver Canada Ivory Oval
                         Memphis Sweden Crimson Cylinder Nashville Orlando
                         Phoenix Seattle)
-
         #set our instance variables,
         #setting defaults if any are nil.
         @enrollmentRepeats = params.fetch(:enrollmentRepeats, 3)
@@ -55,7 +54,7 @@ module Knurld
         def self.to_json
           return {
             :enrollmentRepeats => @enrollmentRepeats,
-            :vocabulary => @VOCABULARY,
+            :vocabulary => @vocabulary,
             :verificationLength => @verificationLength,
             :threshold => @threshold,
             :autoThresholdEnable => @autoThresholdEnable,
@@ -99,7 +98,7 @@ module Knurld
     def self.to_json
       return {
         :enrollmentRepeats => @enrollmentRepeats,
-        :vocabulary => @VOCABULARY,
+        :vocabulary => @vocabulary,
         :verificationLength => @verificationLength,
         :threshold => @threshold,
         :autoThresholdEnable => @autoThresholdEnable,

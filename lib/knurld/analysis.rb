@@ -39,14 +39,10 @@ module Knurld
     #@return An Array of intervals if taskStatus is complete, or simply taskStatus
     def results
       response = Knurld::execute_request(:get, "endpointAnalysis/"+@taskName)
-      @taskStatus = response["taskStatus"]
-      puts response
-      puts @taskStatus
-      case @taskStatus
-      when "completed"
-          response["intervals"]
-        else
-          response["taskStatus"]
+      if response["taskStatus"] == "completed"
+        return response["intervals"]
+      else
+        return response["taskStatus"]
       end
     end
   end

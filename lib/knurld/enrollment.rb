@@ -3,6 +3,8 @@
 # to verify their identity by speaking the phrase used during enrollment.
 
 #Read more here: https://developer.knurld.io/knurld-enrollment-api/apis
+require 'pp'
+
 module Knurld
   class Enrollment
     attr_accessor :id, :href, :consumer, :appmodel
@@ -41,7 +43,7 @@ module Knurld
     def populate(file_url, intervals=[])
       unless file_url.is_a?(String) &&
               intervals.is_a?(Array) &&
-              intervals.first.is_a?(Hash)
+              intervals[0].is_a?(Hash)
         raise TypeError, "Refusing to populate enrollment. File URL must be a string, and intervals must be an array of hashes."
       end
 
@@ -51,22 +53,28 @@ module Knurld
     ##
     # Retrieves the status of an enrollment.
     #
-    # @return true if te enrollment is completed, false if failed, or the full status otherwise
-    def self.complete_or_status
-       status = Knurld::execute_request(:get, "enrollments/"+self.id)["status"]
+    # NOTE: If initializing an enrollment, it will set the enrollments instructions, which will ALWAYS be in the format: {"phrase"=> [], "repeats"=>n}
+    # @return true if te enrollment is completed, false if failed, sets the instructions, or return the full response
+    def status
+       response = Knurld::execute_request(:get, "enrollments/"+self.id)
+       status = response["status"]
        case status
-         when "Completed"
-           true
-         when "Failed"
-           false
+         when "completed"
+           return true
+         when "failed"
+           $stderr.puts response
+           return false
+         when "initialized"
+           @instructions = response["instructions"]["data"]
+           return @instructions
          else
-           status
+           return status
        end
     end
 
     ##
     # Requests deletion of an enrollment.
-    def self.destroy
+    def destroy
       Knurld::execute_request(:delete, "enrollments"/+self.id)
     end
   end

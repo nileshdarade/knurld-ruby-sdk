@@ -17,18 +17,17 @@ module Knurld
     # @return the verification instance
     def initialize(params={})
       begin
-        consumer = params.fetch("consumer")
-        appmodel = paras.fetch("appmodel")
+        consumer = params.fetch(:consumer)
+        appmodel = params.fetch(:appmodel)
       rescue => e
-        $stderr.puts e.message
-        raise "Consumer and Appmodel required!"
+        raise KeyError, "Consumer and Appmodel required!"
       end
 
       unless consumer.is_a?(Knurld::Consumer) && appmodel.is_a?(Knurld::AppModel)
-        raise "Refusing to create verification. Consumer must be a Consumer instance, and AppModel must be an Appmodel instance."
+        raise TypeError, "Refusing to create verification. Consumer must be a Consumer instance, and AppModel must be an Appmodel instance."
       end
 
-      @href = execute_request(:post, "verifications", {:consumer => consumer.href, :application => appmodel.href})["href"]
+      @href = Knurld::execute_request(:post, "verifications", {:consumer => consumer.href, :application => appmodel.href})["href"]
       @id = @href.split("/verifications/")[1]
 
       return self
@@ -48,23 +47,24 @@ module Knurld
       unless file_url.is_a?(String) && intervals.is_a?(Array) && intervals.first.is_a?(Hash)
         raise "Refusing to verify voice. File URL must be a string, and intervals must be an array of hashes."
       end
-      execute_request(:post, "verifications/"+self.id, {"enrollment.wav" => file_url, :intervals => intervals})
+      Knurld::execute_request(:post, "verifications/"+self.id, {"verification.wav" => file_url, :intervals => intervals})
     end
-  end
 
-  ##
-  # Retrieves the status of a verification.
-  #
-  # @return true if the verification is completed, false if failed, or the full status otherwise
-  def self.success_or_status
-     response = execute_request(:get, "verifications/"+self.id)
-     case response["status"]
-       when "Completed"
-         return response["verified"]
-       when "Failed"
-         false
-       else
-         response["status"]
-     end
+
+    ##
+    # Retrieves the status of a verification.
+    #
+    # @return true if the verification is completed, false if failed, or the phrase
+    def status
+       response = Knurld::execute_request(:get, "verifications/"+self.id)
+       case response["status"]
+         when "Completed"
+           return response["verified"]
+         when "Failed"
+           return false
+         else
+           return response["instructions"]["data"]
+       end
+    end
   end
 end

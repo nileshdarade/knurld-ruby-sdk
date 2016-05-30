@@ -21,50 +21,60 @@ module Knurld
     #
     # @return The Consumer instance.
     def initialize(params={})
+      if params.has_key?("href")
+        # the user being created is being created from a knurld response object,
+        # i.e. they already existed. therefore, there will be no password.
+        @href = params.fetch("href")
+        @gender = params.fetch("gender")
+        @username = params.fetch("username")
+        @id = @href.split("/consumers/")[1]
+        return self
+      end
+      #href was blank, so it must be an entirely new consumer.
       begin
         @gender = params.fetch(:gender)
         @username = params.fetch(:username)
         @password = params.fetch(:password)
-      rescue => e
+      rescue => err
         raise KeyError, "Refusing to create Consumer. Gender, Username, and Password are required."
       end
 
-      case gender
+      case @gender
       when "male"
         self.gender = "M"
       when "female"
         self.gender = "F"
       else
         begin
-          if gender.upcase != "M" || gender.upcase != "F"
+          unless gender.upcase == "M" || gender.upcase == "F"
             raise TypeError, "Gender must be 'male', 'female', 'm', or 'f'"
           else
             self.gender = gender.upcase
           end
-        rescue
+        rescue => e
           raise TypeError, "Error processing gender."
         end
       end
 
-      if username.is_a? String
+      if username.is_a?(String)
         self.username = username
       else
         raise TypeError, "Consumer username can only be a string."
       end
 
-      if password.is_a? String
+      if password.is_a?(String)
         self.password = password
       else
         raise TypeError, "Consumer password can only be a string."
       end
 
+      #if our consumer is being created from a preexisting knurld object,
+      #dont' create it again!
       response = Knurld::execute_request(:post, "consumers",
                       {:gender => self.gender, :username => self.username,
                       :password => self.password})
-
       @href = response["href"]
       @id = @href.split("/consumers/")[1]
-      return self
     end
 
     ##

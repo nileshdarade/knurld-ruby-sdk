@@ -10,11 +10,7 @@ require "json"
 require "rest-client"
 
 module Knurld
-  @developer_id
   @api_base_url = "https://api.knurld.io/v1/"
-  @client_id
-  @client_secret
-  @access_token
 
   class << self
     attr_accessor :developer_id, :client_id, :client_secret, :api_base_url
@@ -67,7 +63,6 @@ module Knurld
       if headers == nil
         headers = make_headers
       end
-      #RestClient has a strict no payload parameter rule for get requests.
       response = RestClient::Request.execute(method: method, url: url, payload: data, headers: headers)
     rescue RestClient::Exception => e
       raise "Error emitting request. Error: #{e.message}. Response: #{e.response}."
@@ -119,7 +114,7 @@ module Knurld
   #
   #@return [AppModel] The specific app model
   def self.retrieve_app_model(id)
-    if id.contains? "api.knurld.io" # it is a URL, not just an id
+    if id.include? "api.knurld.io" # it is a URL, not just an id
       id = id.split("/app-models/")[1]
     end
     Knurld::AppModel.new(self.execute_request(:get, "app-models/"+id))
@@ -130,10 +125,12 @@ module Knurld
   #
   #@return [Consumer] The specific consumer
   def self.retrieve_consumer(id)
-    if id.contains? "api.knurld.io" # it is a URL, not just an id
+    if id.include? "api.knurld.io" # it is a URL, not just an id
       id = id.split("/consumers/")[1]
     end
-    Knurld::Consumer.new(self.execute_request(:get, "consumers/"+id))
+    response = self.execute_request(:get, "consumers/"+id)
+    puts response
+    Knurld::Consumer.new(response)
   end
 
   #Retrieve all consumers for a developer.
@@ -143,6 +140,7 @@ module Knurld
     self.execute_request(:get, "consumers")["items"].each do |consumer|
       results << Knurld::Consumer.new(consumer)
     end
+    return results
   end
 
   ##
