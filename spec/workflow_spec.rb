@@ -1,6 +1,9 @@
 require 'spec_helper'
 
 describe "KNURLD API" do
+  # @delwinsEntries = %w(
+  #
+  # )
   before(:all) do
     @consumer = Knurld::Consumer.new({:gender => "male", :username => ('a'..'z').to_a.shuffle[0,8].join, :password => "TESTUSER"})
     @appmodel = Knurld::AppModel.new({:vocabulary => ["Boston", "Ivory", "Sweden"]})
@@ -16,32 +19,32 @@ describe "KNURLD API" do
 
     @analysis = Knurld::Analysis.new({:audioUrl => "https://dl.dropboxusercontent.com/s/ii4qa4vi8r3p4nt/6386420494.wav?dl=0", :num_words => @enrollmentPhrase.length})
     @intervals = []
-    @analysis.results.each_with_index do |interval, index|
+    @analysis.results["intervals"].each_with_index do |interval, index|
       interval['phrase'] = @enrollmentPhrase[index]
       @intervals << interval
     end
     @enrollment.populate("https://dl.dropboxusercontent.com/s/ii4qa4vi8r3p4nt/6386420494.wav?dl=0", @intervals)
   end
 
-  it 'fails collin' do
-    sleep 5
-    @verification = Knurld::Verification.new({:appmodel => @appmodel, :consumer => @consumer})
-    @verificationAnalysis = Knurld::Analysis.new({:audioUrl => "https://dl.dropboxusercontent.com/s/cqdxjvi0zr556pt/Audio%20Track.wav?dl=0", :num_words => 3})
+  it 'fails delwin' do
+    sleep 5 #let the enrollment populate
+    @verificationAnalysis = Knurld::Analysis.new({:audioUrl => "https://dl.dropboxusercontent.com/s/xwnlsabj91w26b9/Audio%20Track-2.wav?dl=0", :num_words => 3})
     @verificationIntervals = []
-    raise @verificationAnalysis.results.to_s
-    @verificationPhrase = @verification.status["phrases"]
-    @spokenPhrase = ["Boston", "Ivory", "Sweden"]
-    @verificationAnalysis.results.each_with_index do |interval, index|
-      interval['phrase'] = @spokenPhrase[index]
+    @verificationPhrase = ["Boston", "Ivory", "Sweden"]
+
+    @verificationAnalysis.results["intervals"].each_with_index do |interval, index|
+      interval['phrase'] = @verificationPhrase[index]
       @verificationIntervals << interval
     end
 
-    @payload = []
-    @verificationPhrase.each do |word|
-      @payload << @verificationIntervals.select {|key, val| key.value?(word)}[0]
+
+    @verification = Knurld::Verification.new({:appmodel => @appmodel, :consumer => @consumer})
+    while @verification.status["phrases"] != ["Boston", "Ivory", "Sweden"]
+      @verification = Knurld::Verification.new({:appmodel => @appmodel, :consumer => @consumer})
     end
 
-    @verification.verify("https://dl.dropboxusercontent.com/s/cqdxjvi0zr556pt/Audio%20Track.wav?dl=0", @payload)
+    # puts @verificationIntervals
+    @verification.verify("https://dl.dropboxusercontent.com/s/tgm52upwbymzgfc/bostonivorysweden.wav?dl=0", @verificationIntervals)
     puts @verification.status
     expect(@verification.status).to eq(false)
   end

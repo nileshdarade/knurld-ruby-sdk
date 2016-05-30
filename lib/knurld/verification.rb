@@ -57,12 +57,14 @@ module Knurld
     # @return true if the verification is completed, false if failed, or the phrase
     def status
        response = Knurld::execute_request(:get, "verifications/"+self.id)
+      #  puts response
        case response["status"]
          when "Completed"
            return response["verified"]
          when "Failed"
            return false
          else
+           puts response
            return response["instructions"]["data"]
        end
     end

@@ -129,7 +129,6 @@ module Knurld
       id = id.split("/consumers/")[1]
     end
     response = self.execute_request(:get, "consumers/"+id)
-    puts response
     Knurld::Consumer.new(response)
   end
 

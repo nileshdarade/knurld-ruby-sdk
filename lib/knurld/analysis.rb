@@ -5,8 +5,6 @@
 module Knurld
   class Analysis
     attr_accessor :taskName, :taskStatus, :audioUrl, :num_words
-    @audioUrl
-    @num_words
     ##
     #Creates a new analysis request and ships it.
     #
@@ -38,12 +36,12 @@ module Knurld
     #
     #@return An Array of intervals if taskStatus is complete, or simply taskStatus
     def results
-      response = Knurld::execute_request(:get, "endpointAnalysis/"+@taskName)
-      if response["taskStatus"] == "completed"
-        return response["intervals"]
-      else
-        return response["taskStatus"]
-      end
+      return Knurld::execute_request(:get, "endpointAnalysis/"+@taskName)
+      # if response["taskStatus"] == "completed"
+      #   return response["intervals"]
+      # else
+      #   return response["taskStatus"]
+      # end
     end
   end
 end
