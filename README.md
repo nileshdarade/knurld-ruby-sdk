@@ -27,7 +27,9 @@ The Knurld Workflow is preserved. A working example of usage can be seen in `spe
 
 ```ruby
 #create our consumer with a random username
-@consumer = Knurld::Consumer.new({:gender => "male", :username => ('a'..'z').to_a.shuffle[0,8].join, :password => "TESTUSER"})
+@consumer = Knurld::Consumer.new({:gender => "male",
+                                  :username => ('a'..'z').to_a.shuffle[0,8].join,
+                                  :password => "TESTUSER"})
 
 #create our appmodel
 @appmodel = Knurld::AppModel.new({:vocabulary => ["Boston", "Ivory", "Sweden"]})
@@ -42,7 +44,8 @@ The Knurld Workflow is preserved. A working example of usage can be seen in `spe
 @repeats = @enrollment.status["repeats"]
 
 
-#from the phrase and number of repeats, construct our array (e.g. Boston, Boston, Boston, Ivory, Ivory, Ivory, Sweden, Sweden, Sweden)
+#from the phrase and number of repeats, construct our array
+# e.g. Boston, Boston, Boston, Ivory, Ivory, Ivory, Sweden, Sweden, Sweden
 @enrollmentPhrase = []
 @phrase.each do |word|
   for i in 1..@repeats
@@ -79,9 +82,10 @@ sleep 5 #let the enrollment populate
 end
 
 @verification = Knurld::Verification.new({:appmodel => @appmodel, :consumer => @consumer})
-#**NOTE:** This particular while loop exists solely for demonstration purposes; it continually creates new verifications until we get one that requires the pre-recorded verification phrase.
+#**NOTE:** This particular while loop exists solely for demonstration purposes
+#it continually creates new verifications until we get one that requires the pre-recorded verification phrase.
 #This is NOT needed in actual usage!
-#Normally, you would retrieve the verification.status["phrase"] and prompt the user to say it, via whatever frontend recording steps you choose.
+#Normally, you would retrieve the verification.status["phrase"] and prompt the user to record it
 while @verification.status["phrases"] != ["Boston", "Ivory", "Sweden"]
   @verification = Knurld::Verification.new({:appmodel => @appmodel, :consumer => @consumer})
 end
