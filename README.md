@@ -25,7 +25,7 @@ Or install it yourself as:
 
 The Knurld Workflow is preserved. A working example of usage can be seen in `spec/workflow_spec.rb` (copied and reformatted here)
 
-```
+```ruby
 #create our consumer with a random username
 @consumer = Knurld::Consumer.new({:gender => "male", :username => ('a'..'z').to_a.shuffle[0,8].join, :password => "TESTUSER"})
 
