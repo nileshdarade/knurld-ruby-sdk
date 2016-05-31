@@ -32,7 +32,17 @@ describe "KNURLD API" do
     @verificationIntervals = []
     @verificationPhrase = ["Boston", "Ivory", "Sweden"]
 
+    @verificationAnalysis.results["intervals"].each_with_index do |interval, index|
+      interval['phrase'] = @verificationPhrase[index]
+      @verificationIntervals << interval
+    end
+
+    @verification = Knurld::Verification.new({:appmodel => @appmodel, :consumer => @consumer})
+    while @verification.status["phrases"] != ["Boston", "Ivory", "Sweden"]
+      @verification = Knurld::Verification.new({:appmodel => @appmodel, :consumer => @consumer})
+    end
     @verification.verify("https://dl.dropboxusercontent.com/s/tgm52upwbymzgfc/bostonivorysweden.wav?dl=0", @verificationIntervals)
     expect(@verification.status).to eq(true)
+
   end
 end
