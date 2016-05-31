@@ -34,7 +34,7 @@ The Knurld Workflow is preserved. A working example of usage can be seen in `spe
 #create our appmodel
 @appmodel = Knurld::AppModel.new({:vocabulary => ["Boston", "Ivory", "Sweden"]})
 
-#create an enrollment using the consumer & appmodel
+#enroll the consumer into the app
 @enrollment = Knurld::Enrollment.new({:consumer => @consumer, :appmodel => @appmodel})
 
 #retrieve the enrollment phrase & number of types to repeat each word
@@ -53,6 +53,7 @@ The Knurld Workflow is preserved. A working example of usage can be seen in `spe
   end
 end
 
+#after our user has recorded the enrollmentPhrase,
 #use the provided Analysis API to retrieve our phrase endpoints
 @analysis = Knurld::Analysis.new({:audioUrl => "https://dl.dropboxusercontent.com/s/ii4qa4vi8r3p4nt/6386420494.wav?dl=0", :num_words => @enrollmentPhrase.length})
 @intervals = []
